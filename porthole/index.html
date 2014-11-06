@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+
+<title>porthole</title>
+
+
+
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css" />
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+<script src="porthole.js"></script>
+
+<style>
+
+.porthole {
+}
+</style>
+
+<script>
+
+'use strict';
+
+$(function() {
+
+    $('#porthole').porthole({ font: 'normal 60pt sans-serif' });
+
+    $('#slider').slider({ min: 0, max: 400, value: 5, stop: function(event, ui) { 
+      $('#porthole').porthole('option', {value: $(this).val()});
+      } });
+    
+
+    });
+
+$(function() {
+    $('#porthole').porthole('option', { value: 13});
+    });
+
+</script>
+
+</head>
+<body>
+
+
+<noscript>
+  you need javascript.
+</noscript>
+
+<div id="porthole"></div>
+</div><input type="range" name="slider-1" id="slider" value="60" min="0" max="400">
+
+some text!
+
+</body>
+</html>
+
