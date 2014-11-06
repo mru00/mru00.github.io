@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" manifest="cache.appmanifest">
+
+<head>
+<meta charset="utf-8">
+
+<title>Drinking Diary</title>
+
+<link rel="shortcut icon" sizes="16x16" href="cocktail_16.png">
+<link rel="apple-touch-icon" sizes="57x57" href="cocktail_57.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<link rel="apple-touch-startup-image" href="startup_320x460.png">
+
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.css" />
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.4/jquery.mobile-1.4.4.min.js"></script>
+<script src="iso8601.min.js"></script>
+<script src="base64v1_0.js"></script>
+
+<script src="http://nparashuram.com/IndexedDBShim/dist/IndexedDBShim.min.js"></script>
+<script src="http://nparashuram.com/jquery-indexeddb/dist/jquery.indexeddb.js"></script>
+
+<script src="gradient.js"></script>
+<script src="circlechart.js"></script>
+<script src="calendar.js"></script>
+
+<!--
+<link rel="stylesheet" href="addtohomescreen.css" />
+<script src="addtohomescreen.min.js"></script>
+-->
+
+
+<script src="drinking.js"></script>
+
+<style>
+.field-chart {
+  margin: 0px auto;
+}
+.field-dump {
+  font-family: Monospace;
+}
+.field-error {
+  font-weight: bold;
+  font-style: italic;
+  /*margin-left: 3em;
+  margin-bottom: 3em;*/
+}
+.field-weelky table {
+  border-collapse: collapse;
+}
+label {
+  margin-top: 1em;
+}
+.field-color-legend {
+  width: 100%;
+  text-align: center;
+}
+table.field-weelky,  tr.field-weelky,  td.field-weelky, th.field-weelky {
+  border: 1px solid black;
+}
+td, th {
+  padding 15px;
+}
+.ui-title {
+  margin: 0 5% !important;
+}
+.calendar-day {
+  text-align: right;
+}
+.calendar-day-othermonth {
+  background-color: LightGray;
+  font-style: italic;
+}
+.calendar-day-inmonth {
+  background-color: YellowGreen;
+}
+.calendar-day {
+  padding-top: .75em;
+  padding-left: .75em;
+}
+.calendar-weekday {
+}
+.calendar-day-selected {
+  border: 2px solid green;
+}
+.calendar-day-today {
+  font-weight: bold;
+  font-style: italic;
+  /*font-size: 120%;*/
+}
+.calendar-table {
+  border: 1px solid black;
+}
+.calendar {
+}
+.calendar-ww-title {
+  font-size: 90%;
+  background-color: YellowGreen;
+  border-right: 1px solid black;
+}
+.calendar-ww-current .calendar-ww-title {
+  font-weight: bold;
+}
+.calendar-ww-current {
+}
+</style>
+
+</head>
+<body>
+
+
+
+<div data-role="page" id="page-main" class="page" data-add-back-btn="true">
+  <div data-role="header"><h1>Drinking Diary</h1></div>
+
+  <div role="main" class="ui-content">
+    <div class="field-chart"></div>
+    <ul class="field-list" data-role="listview" data-inset="true">
+    </ul>
+    <div class="field-incrementers"></div>
+    <a href="#page-consumption-details" class="btn-add ui-btn">Add consumption</a>
+    <!--a href="#page-consumptions" class="btn-show-consumptions btn ui-btn ui-btn-icon-left ui-icon-bars">Show all consumptions</a-->
+    <!--a href="#page-stats" class="ui-btn ui-icon-info ui-btn-icon-left">Stats</a-->
+    <a href="#page-drinks" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit drinks</a>
+    <a href="#page-servings" class="ui-btn ui-icon-edit ui-btn-icon-left">Edit servings</a>
+    <a href="#page-about" class="ui-btn ui-icon-info ui-btn-icon-left">About</a>
+    <a href="#page-dump" class="ui-btn ui-icon-info ui-btn-icon-left">Manage database</a>
+  </div>
+</div>
+
+
+
+
+
+<div data-role="page" id="page-consumptions" class="page" data-add-back-btn="true">
+
+  <div data-role="header">
+    <a href="#" data-rel="back" class="ui-icon-back">Back</a>
+    <h1>My consumptions</h1>
+  </div>
+
+  <div role="main" class="ui-content">
+    <ul class="field-list" data-role="listview" data-filter="true" data-inset="true"></ul>
+  </div>
+</div>
+
+
+
+
+
+
+
+<div data-role="page" id="page-consumption-details" class="page page-edit" data-add-back-btn="true">
+
+  <div data-role="header">
+    <a href="#" data-rel="back" class="ui-icon-back ui-btn-icon-left ui-btn">Back</a>
+    <h1>I consumed</h1>
+  </div>
+
+  <div role="main" class="ui-content">
+    <form name="consumption" id="consumption-form">
+      <input name="date" id="consume-date" class="field-date" type="date">
+      <div id="consume-entries" class="field-consumptions">
+      </div>
+      <datalist id="tags"></datalist>
+    </form>
+
+    <button class="btn-add">Add row</button>
+
+    <button class="btn-save">Save</button>
+    <button class="btn-delete">Delete</button>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+<div data-role="page" id="page-drinks" class="page" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Drinks</h1>
+  </div>
+  <div role="main" class="ui-content">
+    <ul class="field-drinks" data-role="listview" data-inset="true"></ul>
+
+    <a href="#page-drink-details" class="btn-add ui-btn">Add drink</a>
+  </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-drink-details" class="page page-edit" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Drink</h1>
+  </div>
+  <div role="main" class="ui-content">
+    <table data-role="table">
+      <thead>
+        <tr><th>Name</th><th>ABV / Alc Vol%</th><th>Calories per liter</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <th><input class="drink-details-name field-name"></th>
+        <td><input class="drink-details-alc field-alc" type="number"></td>
+        <td><input class="drink-details-calories field-calories" type="number"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <button class="btn-save">Save</button>
+    <button class="btn-delete">Delete</button>
+  </div>
+</div>
+
+
+
+<div data-role="page" id="page-servings" class="page" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Servings</h1>
+  </div>
+  <div role="main" class="ui-content">
+
+    <ul class="field-servings" data-role="listview" data-inset="true"></ul>
+
+    <a href="#page-serving-details" class="btn-add ui-btn">Add serving</a>
+  </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-serving-details" class="page page-edit" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Serving</h1>
+  </div>
+  <div role="main" class="ui-content">
+    <table data-role="table">
+      <thead>
+        <tr><th>Name</th><th>Liters</th></tr>
+      </thead>
+      <tbody>
+      <tr>
+        <th><input class="field-name"></th>
+        <td><input type="number" class="field-liters"></td>
+      </tr>
+      </tbody>
+    </table>
+
+    <button class="btn-save">Save</button>
+    <button class="btn-delete">Delete</button>
+  </div>
+</div>
+
+
+
+
+
+<div data-role="page" id="page-show-error" class="page" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Error</h1>
+  </div>
+  <div role="main" class="ui-content">
+
+    <p>There was an error:</p>
+    
+    <div class="field-error ui-bar ui-bar-a"></div>
+
+
+    <p><small>If the database is really really broken, try re-creating the database in <a href="#page-dump">manage database</a> (<q>Drop and recreate database</q>).</small></p>
+  </div>
+</div>
+
+
+
+<div data-role="page" id="page-about" class="page" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>About</h1></div>
+  <div role="main" class="ui-content">
+
+    <h2>Drinking Diary</h2>
+    <p><a href="#" class="field-url"></a></p>
+    <p><q>It ain't that much!</q> (Anonymous)</p>
+
+    <p>This app makes it easy to keep record of you alcohol consumption.</p>
+    <p>Use your browser's "Add to Home Screen" to install as app.</p>
+    <p>All data is stored locally on your device, nothing is ever uploaded.</p>
+    <p>Copyright &copy; 2014 <a href="mailto:mru@sisyphus.teil.cc">mru@sisyphus.teil.cc</a></p>
+    <!--p>Made with &#9829; using <a href="https://github.com/mru00/drinkingdiary">GitHub</a>.</p-->
+
+    <p>Version: <!--Vb-->2014-11-02--23:21<!--Ve--></p>
+
+  </div>
+</div>
+
+
+
+<div data-role="page" id="page-dump" class="page" data-add-back-btn="true">
+  <div data-role="header">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Manage database</h1></div>
+  <div role="main" class="ui-content">
+
+    <label>db name: <span class="field-db-name"></span></label>
+
+    <label>Send dump via email
+      <button class="btn-email ui-btn ui-icon-forward ui-btn-icon-left">Send dump via email</button></label>
+
+    <label>String representation of database contents. Use your device's Copy-paste functionality, to e.g. send data via email, store in notes as backup, etc.
+      <input type="text" class="field-dump" placeholder="dump data" data-clear-btn="true"></label>
+
+    <label>Generate string represenation of database content:
+      <button class="btn-dump ui-btn ui-icon-info ui-btn-icon-left">Create dump</button></label>
+
+    <label>Load data from input field above. <em>Data might get overwritten!</em>
+      <button class="btn-load ui-btn ui-icon-plus ui-btn-icon-left">Load dump</button></label>
+
+    <label>Delete whole database. <em>All data will be lost</em>. Restart the application to recreate the database.
+      <button class="btn-drop ui-btn ui-icon-forbidden ui-btn-icon-left">Drop database</button></label>
+
+    <label>Delete whole database and start a new one. <em>All data will be lost</em>.
+      <button class="btn-recreate ui-btn ui-icon-forbidden ui-btn-icon-left">Drop and recreate database</button></label>
+
+
+    <p></p>
+    <a id="field-email" class="field-email" href="mailto:" style="display:none">email it</a>
+
+  </div>
+</div>
+
+
+
+
+<div data-role="page" id="page-stats" class="page " data-add-back-btn="true">
+  <div data-role="header" data-add-back-btn="true">
+    <a href="#" data-rel="back">Back</a>
+    <h1>Statistics</h1>
+  </div>
+  <div role="main" class="ui-content">
+
+
+    <label>This week's consumption compared to a goal of <span class="field-goal">20</span> units per week:
+      <div class="field-chart"></div></label>
+
+    <div data-role="tabs">
+      <div data-role="navbar">
+        <ul>
+          <li><a href="#cal-prev-month"><span>Previous Month</span></a></li>
+          <li class="ui-tabs-active" data-role="tabs-active"><a href="#cal-this-month"><span>Current Month</span></a></li>
+        </ul>
+      </div>
+      <div id="cal-this-month" class="field-calendar"></div>
+      <div id="cal-prev-month" class="field-calendar-prev-month"></div>
+    </div>
+
+    <p></p>
+    <label>Color legend for percentages:
+    <table class="field-color-legend">
+      <tr>
+        <td class="field-legend-0">0</td>
+        <td class="field-legend-1">1</td>
+        <td class="field-legend-25">25</td>
+        <td class="field-legend-50">50</td>
+        <td class="field-legend-75">75</td>
+        <td class="field-legend-100">100</td>
+        <td class="field-legend-125">125</td>
+        <td class="field-legend-150">150</td>
+      </tr>
+    </table>
+  </label>
+
+    <p><a href="https://en.wikipedia.org/wiki/Unit_of_alcohol">Wikipedia on alcohol units</a></p>
+  </div>
+</div>
+
+</body>
+</html>
+
